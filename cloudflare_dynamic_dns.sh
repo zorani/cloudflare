@@ -20,7 +20,8 @@ cf_email=''
 cf_zone=''
 #A_cf_target , array of DNS target names for your zone that you want to update the ip address.  e.g. declare -a A_cf_target=(yourdomain.com subdomain1.yourdomain.com subdomain2.yourdomain.com)
 declare -a A_cf_target=()
-
+#A_cf_service_mode, array of equal size of A_cf_target, 0 1 values.  0=no cloudflare routing for domain,  1=turn on cloudflare routing for domain e.g. declare -a A_cf_service_mode=(1 0 0)
+declare -a A_cf_service_mode=()
 
 #current_server_ip 
 #=================
@@ -50,11 +51,13 @@ current_server_ip=$(curl -s -L "$ip_detect_url")
 
 domaindata=$(curl -s https://www.cloudflare.com/api_json.html -d 'a=rec_load_all' -d "tkn=$cf_tkn"  -d "email=$cf_email"  -d "z=$cf_zone")
 
-for cf_target in "${A_cf_target[@]}"
+num_targets=${#A_cf_target[@]}
+
+for ct in $(seq 0 $(($num_targets-1)) )
 do
 
-  cf_ip=$(echo $domaindata | jq -r ".response.recs.objs | .[] | select(.name==\"$cf_target\").content" )
-  rec_id=$(echo $domaindata | jq -r ".response.recs.objs | .[] | select(.name==\"$cf_target\").rec_id")
+  cf_ip=$(echo $domaindata | jq -r ".response.recs.objs | .[] | select(.name==\"${A_cf_target[$ct]}\").content" )
+  rec_id=$(echo $domaindata | jq -r ".response.recs.objs | .[] | select(.name==\"${A_cf_target[$ct]}\").rec_id")
 
   if [ "$current_server_ip" != "$cf_ip" ]; then 
     curl -s https://www.cloudflare.com/api_json.html \
@@ -64,9 +67,9 @@ do
     -d "email=$cf_email" \
     -d "z=$cf_zone" \
     -d 'type=A' \
-    -d "name=$cf_target" \
+    -d "name=${A_cf_target[$ct]}" \
     -d "content=$current_server_ip" \
-    -d 'service_mode=0' \
+    -d "service_mode=${A_cf_service_mode[$ct]}" \
     -d 'ttl=1' > /dev/null
   fi
 

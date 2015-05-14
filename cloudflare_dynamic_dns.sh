@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # cloudflare_dynamic_dns.sh
+# This script will directly read the DNS record for your website on cloudflare.
+# It will detect your external address and if it differs from the  cloudflare DNS,
+# will update the cloudflare DNS to point to your new IP.
 
 # Dependencies:  jq,   ubuntu install using:    sudo apt-get install jq
 # IMPORTANT: Detection of ip address will work straight away, but please read about

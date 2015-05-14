@@ -3,6 +3,8 @@
 # cloudflare_dynamic_dns.sh
 
 # Dependencies:  jq,   ubuntu install using:    sudo apt-get install jq
+# IMPORTANT: Detection of ip address will work straight away, but please read about
+# variable current_server_ip
 
 # Dynamic DNS with cloudflare.com
 # 
@@ -41,8 +43,11 @@ declare -a A_cf_service_mode=()
 #echo $_SERVER['REMOTE_ADDR']
 #?>
 
-ip_detect_url='http://www.trusteddomain.com/path/to/hinfo.php'
-current_server_ip=$(curl -s -L "$ip_detect_url")
+#ip_detect_url='http://www.trusteddomain.com/path/to/hinfo.php'
+#current_server_ip=$(curl -s -L "$ip_detect_url")
+
+#am putting icanhazip.com here so that script 'works out of the box', keep an eye on this and read above notes on current_server_ip
+current_server_ip=$(curl -s icanhazip.com)
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////
 
